@@ -4,12 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask App new🚀</title>
+    <title>MessageBoard 🚀 | Flask + MySQL</title>
     <style>
         /* Import Google Font */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-        /* Reset Default Styles */
         * {
             margin: 0;
             padding: 0;
@@ -17,10 +16,9 @@
             font-family: 'Poppins', sans-serif;
         }
 
-        /* Background with subtle gradient */
         body {
-            background: linear-gradient(to bottom, #0f0f0f, #1c1c1c);
-            color: #fff;
+            background: linear-gradient(to bottom, #121212, #232323);
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,40 +26,37 @@
             padding: 20px;
         }
 
-        /* Glassmorphic Container */
         .container {
             max-width: 600px;
             width: 100%;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 35px 25px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(255, 255, 255, 0.07);
         }
 
-        /* Elegant Heading */
         h1 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 600;
-            background: linear-gradient(135deg, #ff9800, #e65100);
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        /* Messages Box */
         .messages {
             margin-bottom: 20px;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.07);
             border-radius: 10px;
             max-height: 200px;
             overflow-y: auto;
@@ -69,13 +64,13 @@
 
         .messages p {
             padding: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 8px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-size: 0.95rem;
+            text-align: left;
         }
 
-        /* Animated Input Fields */
         input[type="text"] {
             width: 100%;
             padding: 12px;
@@ -83,43 +78,42 @@
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             transition: all 0.3s ease;
-            text-align: center;
         }
 
         input[type="text"]:focus {
-            border-color: #ff9800;
-            box-shadow: 0 0 12px rgba(255, 152, 0, 0.5);
+            border-color: #ffa726;
+            box-shadow: 0 0 10px rgba(255, 167, 38, 0.5);
             outline: none;
         }
 
-        /* Glowing Submit Button */
         input[type="submit"] {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #ff9800, #e65100);
+	    margin: 10px;
+            background: linear-gradient(135deg, #ffa726, #fb8c00);
             color: #fff;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
+            margin-top: 10px;
             transition: all 0.3s ease;
         }
 
         input[type="submit"]:hover {
-            box-shadow: 0 0 20px rgba(255, 152, 0, 0.6);
-            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 167, 38, 0.6);
+            transform: translateY(-1.5px);
         }
 
-        /* Mobile Responsive */
         @media (max-width: 600px) {
             .container {
-                padding: 20px;
+                padding: 25px 18px;
             }
 
             h1 {
-                font-size: 1.6rem;
+                font-size: 1.7rem;
             }
 
             input[type="text"], input[type="submit"] {
@@ -131,7 +125,7 @@
 
 <body>
     <div class="container">
-        <h1>Flask + MySQL App [2 tier] - Junoon 🔥</h1>
+        <h1>🔥 Junoon Messaging Hub</h1>
 
         <div class="messages">
             {% for message in messages %}
@@ -140,23 +134,23 @@
         </div>
 
         <form id="messageForm">
-            <input type="text" name="new_message" placeholder="Type your message..." required>
-            <input type="submit" value="Send">
+            <input type="text" name="new_message" placeholder="Share your thoughts..." required>
+            <input type="submit" value="Submit Message">
         </form>
     </div>
 
     <!-- jQuery for Smooth AJAX Requests -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $("#messageForm").on("submit", function(event) {
-                event.preventDefault(); // Prevent page reload
+        $(document).ready(function () {
+            $("#messageForm").on("submit", function (event) {
+                event.preventDefault();
 
                 let messageInput = $("input[name='new_message']");
                 let message = messageInput.val().trim();
 
                 if (message === "") {
-                    alert("Message cannot be empty!");
+                    alert("Please enter a message.");
                     return;
                 }
 
@@ -164,7 +158,7 @@
                     url: "/submit",
                     type: "POST",
                     data: { new_message: message },
-                    success: function(response) {
+                    success: function (response) {
                         if (response && response.message) {
                             $(".messages").append("<p>" + response.message + "</p>");
                             messageInput.val("");
@@ -172,7 +166,7 @@
                             console.error("Unexpected response format:", response);
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error("AJAX Error:", status, error);
                     }
                 });
@@ -182,3 +176,4 @@
 </body>
 
 </html>
+
