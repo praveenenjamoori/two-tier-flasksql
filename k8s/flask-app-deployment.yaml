@@ -30,3 +30,9 @@ spec:
               value: admin
             - name: MYSQL_DB
               value: devops
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 5
