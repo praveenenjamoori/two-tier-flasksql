@@ -1,6 +1,7 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from flask_mysqldb import MySQL
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
 app = Flask(__name__)
 
@@ -13,6 +14,9 @@ app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'default_db')
 # Initialize MySQL
 mysql = MySQL(app)
 
+# Prometheus metrics
+REQUEST_COUNT = Counter('flask_app_requests_total', 'Total number of requests', ['method', 'endpoint'])
+
 def init_db():
     with app.app_context():
         cur = mysql.connection.cursor()
@@ -22,8 +26,12 @@ def init_db():
             message TEXT
         );
         ''')
-        mysql.connection.commit()  
+        mysql.connection.commit()
         cur.close()
+
+@app.before_request
+def before_request():
+    REQUEST_COUNT.labels(method=request.method, endpoint=request.path).inc()
 
 @app.route('/')
 def hello():
@@ -42,7 +50,11 @@ def submit():
     cur.close()
     return jsonify({'message': new_message})
 
+# Prometheus metrics endpoint
+@app.route('/metrics')
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
 if __name__ == '__main__':
     init_db()
     app.run(host='0.0.0.0', port=5000, debug=True)
-
