@@ -9,7 +9,6 @@ jobs:
   security-check:
     name: Security (Trivy + Gitleaks)
     runs-on: self-hosted
-
     steps:
     - uses: actions/checkout@v4
     - name: Trivy Installation 
