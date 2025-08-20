@@ -6,8 +6,31 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  security-check:
+    name: Security (Trivy + Gitleaks)
     runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Trivy Installation
+      run: |
+        sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update -y
+        sudo apt-get install -y trivy
+    - name: Trivy Filesystem Scan
+      run: trivy fs --format table -o fsreport.json .
+      
+    # gitleaks scan is a tool that is used to find if there is any kind of sensitive data hardcoded i.e., API tokens, secret access tokens
+    - name: Gitleaks Install
+      run: sudo apt install gitleaks -y
+    - name: Gitleaks Code Scan
+      run: gitleaks detect source . -r gitleaks-report.json -f json
+  
+  build-and-sonar-scan:
+    runs-on: self-hosted
+    needs: security-check
     
     steps:
       - name: Checkout repository
@@ -30,9 +53,29 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/flask-app:latest
 
+      - uses: actions/checkout@v4
+        with:
+        # Disabling shallow clones is recommended for improving the relevancy of reporting
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5.3.0 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        
+      # Check the Quality Gate status.
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        with:
+          pollingTimeoutSec: 600
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+
   deploy:
     runs-on: self-hosted
-    needs: build-and-push
+    needs: build-and-sonar-scan
     
     steps:
       - name: Pull latest image
