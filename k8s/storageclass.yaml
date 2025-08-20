@@ -7,3 +7,6 @@ volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Retain
 parameters:
   type: gp2
+
+
+# storageclass.yaml → tells Kubernetes how to provision storage (AWS EBS gp2 in your case).
